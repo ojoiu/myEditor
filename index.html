@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script type="text/javascript" src="./vueJS/vue.js"></script>
+    <!--安装CodeMirror依赖库-->
+    <script src="./plug/codemirror-5.65.3/lib/codemirror.js"></script>
+    <link rel="stylesheet" href="./plug/codemirror-5.65.3/lib/codemirror.css">
+    <!-- 编辑器处理哪种数据eg：html、css、markdown等等 -->
+    <script src="./plug/codemirror-5.65.3/mode/htmlmixed/htmlmixed.js"></script>
+    <!-- 控制编辑器高亮 -->
+    <script src="./plug/codemirror-5.65.3/mode/xml/xml.js"></script>
+
+
+    <style>
+        html,body{
+            margin: 0;
+            height: 100%;
+            font-size: 0;
+        }
+        #myBrowser {
+            width: 100%;
+            height: 50%;
+            box-sizing: border-box;
+            border: none;
+        }
+        #editor {
+            box-sizing: border-box;
+            border-top:solid 1px #ccc;
+            height: 50%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <iframe id="myBrowser"></iframe>
+    <div id="editor"></div>
+</body>
+
+<script>
+    //获取iframe
+    const myBrowser = document.querySelector("#myBrowser");
+    // 利用Blob构建HTML格式的原始数据
+    function updateBrowser(html){
+        const data = new Blob([html],{type: "text/html"});
+        // 使用URL.createObjectURL动态创建URL，并设置到iframe的src
+        myBrowser.src = URL.createObjectURL(data);  
+        console.log(URL.createObjectURL(data))
+    }
+
+    // 创建编辑器
+    const myEditor = document.querySelector("#editor");
+    var myCodeMirror = CodeMirror(myEditor, {
+        mode:  "htmlmixed",
+        lineNumbers: true,
+        height: '100px',
+    });
+    // 监听codeMirror在发生change事件时，回调处理函数
+    myCodeMirror.on("change", function(editor, changeObj){
+        const html = editor.getValue();
+        updateBrowser(html)
+    });
+    // 通过给myCodeMirror设置值，触发change事件，最终updateBrowser更新浏览器
+    myCodeMirror.setValue("<h1>Hello World</h1>");
+</script>
+</html>
