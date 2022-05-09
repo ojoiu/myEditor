@@ -9,8 +9,11 @@
     <link rel="stylesheet" href="./plug/codemirror-5.65.3/lib/codemirror.css">
     <!-- 编辑器处理哪种数据eg：html、css、markdown等等 -->
     <script src="./plug/codemirror-5.65.3/mode/htmlmixed/htmlmixed.js"></script>
+    <script src="./plug/codemirror-5.65.3/mode/markdown/markdown.js"></script>
     <!-- 控制编辑器高亮 -->
     <script src="./plug/codemirror-5.65.3/mode/xml/xml.js"></script>
+    <!-- markdown格式转html  marked库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 
     <style>
@@ -37,7 +40,8 @@
 </head>
 
 <body>
-    <iframe id="myBrowser"></iframe>
+    <iframe id="myBrowser">
+    </iframe>
     <div id="editor"></div>
 </body>
 
@@ -48,23 +52,26 @@
     function updateBrowser(html){
         const data = new Blob([html],{type: "text/html"});
         // 使用URL.createObjectURL动态创建URL，并设置到iframe的src
-        myBrowser.src = URL.createObjectURL(data);  
-        console.log(URL.createObjectURL(data))
+        myBrowser.src = URL.createObjectURL(data);  //目前此处的问题是中文会有乱码，不过一般浏览器支持srcdoc则会渲染srcdoc的内容
+
+        // srcdoc是html5的属性，可以直接将html代码渲染到html5，如果浏览器不支持srcdoc，则会执行.src中的类容
+        myBrowser.srcdoc = html
     }
 
     // 创建编辑器
     const myEditor = document.querySelector("#editor");
     var myCodeMirror = CodeMirror(myEditor, {
-        mode:  "htmlmixed",
+        mode:  "markdown",
         lineNumbers: true,
         height: '100px',
     });
     // 监听codeMirror在发生change事件时，回调处理函数
     myCodeMirror.on("change", function(editor, changeObj){
-        const html = editor.getValue();
+        const html = marked.parse(editor.getValue());
+        // console.log(editor.getValue())
         updateBrowser(html)
     });
     // 通过给myCodeMirror设置值，触发change事件，最终updateBrowser更新浏览器
-    myCodeMirror.setValue("<h1>Hello World</h1>");
+    myCodeMirror.setValue("# Hello World");
 </script>
 </html>
